@@ -10,23 +10,23 @@ This project uses pdfplumber (not OCR) and applies smart parsing logic to extrac
 
 📑 Parses:
 
-Bank Muscat Savings statements
+- Bank Muscat Savings statements
 
-Bank Muscat Credit Card statements
+- Bank Muscat Credit Card statements
 
 🧠 Handles difficult layouts:
 
-Multi-line descriptions
+- Multi-line descriptions
 
-Merchant names spanning lines
+- Merchant names spanning lines
+ 
+- Broken table rows
 
-Broken table rows
+- 📄 Multi-page PDF support
 
-📄 Multi-page PDF support
+- 📊 Clean CSV output
 
-📊 Clean CSV output
-
-🛠 Extensible architecture (easily add new banks)
+- 🛠 Extensible architecture (easily add new banks)
 
 📦 Installation
 ```
