@@ -1,41 +1,61 @@
-📄 PDF Statement Parser
+# 📄 PDF Statement Parser
 
-A Python tool for extracting structured data from Bank Muscat Savings and Bank Muscat Credit Card PDF statements and exporting them into clean CSV files.
+A Python tool for converting **Bank Muscat Savings** and **Bank Muscat Credit Card** PDF statements into clean, structured CSV files.
 
-It handles:
+Supports:
+- 🏦 Bank Muscat Savings Accounts  
+- 💳 Bank Muscat Mastercard / Visa Credit Cards  
+- 🔍 Automatic statement type detection  
+- 📑 Multi-line description handling  
+- 🚧 Non-tabular PDFs (texts only, no built-in tables)  
+- 🖥 Optional Streamlit UI  
 
-multi-line descriptions
+---
 
-badly aligned text
+## 🚀 Features
 
-inconsistent x/y layouts
+### ✔ Automatic statement type detection  
+Detects Savings vs Credit Card statements based on PDF content.
 
-no-table PDFs (pure text only)
+### ✔ Accurate table reconstruction  
+Handles messy PDFs where rows visually align but aren’t actual tables.
 
-auto-detection of statement type
+### ✔ Multi-line descriptions  
+Many credit card descriptions wrap across lines — this parser merges them correctly.
 
-All using pdfplumber.
+### ✔ Works across pages  
+Parses tables cleanly even when they continue over multiple PDF pages.
 
-📦 Installation
+### ✔ Output as UTF-8 CSV  
+Easy to import into Excel, Sheets, or data pipelines.
+
+---
+
+## 📦 Installation
+
+```bash
 git clone https://github.com/OViruSx/pdf-statement-parser
 cd pdf-statement-parser
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+🧠 Usage (CLI)
+Basic:
+bash
+Copy code
+python main.py statement.pdf
+Specify output folder:
+bash
+Copy code
+python main.py statement.pdf output_folder/
+CSV file will appear in:
 
-🚀 Usage
-CLI mode
-python main.py path/to/statement.pdf
-
-
-Output CSV will be saved in:
-
-output/<filename>_<type>.csv
-
-Specify output folder
-python main.py statement.pdf my_output/
-
-🧠 Project Structure
+php-template
+Copy code
+output/<filename>_<detected_type>.csv
+📂 Project Structure
+pgsql
+Copy code
 pdf-statement-parser/
 │
 ├── main.py
@@ -51,8 +71,9 @@ pdf-statement-parser/
 │
 ├── requirements.txt
 └── README.md
-
-🔍 Auto-Detection Logic (detector.py)
+🔍 Statement Type Detection
+python
+Copy code
 def detect_statement_type(text: str):
     text = text.lower()
 
@@ -63,145 +84,90 @@ def detect_statement_type(text: str):
         return "bank_muscat_creditcard"
 
     return None
+🏦 Savings Parser (Summary)
+Handles columns:
 
-🧾 Savings Parser (Excerpt)
-import pdfplumber
-import csv
+Post Date
 
-def parse_pdf(pdf_path, csv_path):
-    rows = []
-    headers = ["Post Date", "Value Date", "Narration", "Withdrawal", "Deposit", "Balance"]
+Value Date
 
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            words = page.extract_words()
+Narration
 
-            # detect table start → find "Post Date"
-            header_y = None
-            for w in words:
-                if w["text"].lower() == "post":
-                    header_y = w["top"]
-                    break
+Debit
 
-            if header_y is None:
-                continue
+Credit
 
-            table_words = [w for w in words if w["top"] > header_y]
+Balance
 
-            # group row by y
-            groups = group_rows(table_words)
+Extracts words → groups into rows → assigns columns based on X-positions.
 
-            for g in groups:
-                cols = assign_columns(g)
-                rows.append(cols)
+python
+Copy code
+with pdfplumber.open(pdf_path) as pdf:
+    for page in pdf.pages:
+        words = page.extract_words()
+        # detect header, group rows, map columns...
+💳 Credit Card Parser (Summary)
+The hardest part — because statements look like this:
 
-    with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
-        writer = csv.writer(f)
-        writer.writerow(headers)
-        writer.writerows(rows)
-
-💳 Credit Card Parser (Excerpt)
-
-Handles:
-
-multi-line descriptions
-
-description appearing before dates
-
-foreign currency transactions
-
-rows like:
-
+swift
+Copy code
 QAHA SPECIALITY COFFEE
 14/11/2025 16/11/2025 MUSCAT OMR 2.100 -2.100
 -
+Parser handles both cases:
 
-Parsing logic
-def parse_row(text):
-    lines = text.strip().split("\n")
-
-    # Case 1: description ABOVE the dates
-    if len(lines) == 3 and re.match(DATE_PAIR, lines[1]):
-        desc = lines[0].strip()
-        parts = lines[1].split()
-        txn = parts[0]
-        post = parts[1]
-        city = parts[-4]
-        curr = parts[-3]
-        amt1 = parts[-2]
-        amt2 = parts[-1]
-        return [txn, post, desc, city, curr, amt1, amt2]
-
-    # Case 2: normal one-line row
-    parts = text.split()
-    if re.match(DATE_PAIR, f"{parts[0]} {parts[1]}"):
-        txn = parts[0]
-        post = parts[1]
-        rest = parts[2:-4]
-        desc = " ".join(rest)
-        city = parts[-4]
-        curr = parts[-3]
-        amt1 = parts[-2]
-        amt2 = parts[-1]
-        return [txn, post, desc, city, curr, amt1, amt2]
-
-    return None
-
+Case A — one-line rows
+swift
+Copy code
+14/11/2025 16/11/2025 AL MEERA MUSCAT OMR 29.230 -29.230
+Case B — description above dates
+swift
+Copy code
+SHELL OMAN – AMRAT IND
+11/11/2025 12/11/2025 AL AMRAT OMR 6.600 -6.600
 🖥 Streamlit UI
+Run:
 
-Run it with:
-
+bash
+Copy code
 streamlit run ui/streamlit_app.py
+Allows:
 
+Drag-and-drop PDF upload
 
-Features:
+Automatic parsing
 
-drag & drop PDFs
+CSV download
 
-automatic statement-type detection
+➕ Adding a New Bank Parser
+1️⃣ Create a file:
 
-CSV download button
-
-➕ Adding a New Bank Format
-
-Create a parser:
-
+bash
+Copy code
 parsers/my_new_bank.py
+2️⃣ Implement:
 
-
-Implement:
-
+python
+Copy code
 def parse_pdf(pdf_path, csv_path):
     ...
+3️⃣ Register in main.py:
 
-
-Register it:
-
+python
+Copy code
 PARSERS = {
     "bank_muscat_savings": bank_muscat_savings.parse_pdf,
     "bank_muscat_creditcard": bank_muscat_creditcard.parse_pdf,
     "my_new_bank": my_new_bank.parse_pdf
 }
+4️⃣ Add detection rules in detector.py.
 
+⭐ Contributing
+PRs and issue reports are welcome.
 
-Add detection logic in detector.py
+If this helped you, please star the repo ⭐
+https://github.com/OViruSx/pdf-statement-parser
 
-That's it.
-
-⚠️ Limitations
-
-Very dirty scanned PDFs may require OCR (Tesseract recommended).
-
-Format changes by the bank can break parsing (but easy to adjust).
-
-Multi-currency rows may require extra handling.
-
-📄 License
-
+📜 License
 MIT License.
-
-⭐ Support
-
-If you like the project, give it a star on GitHub:
-
-👉 https://github.com/OViruSx/pdf-statement-parser
