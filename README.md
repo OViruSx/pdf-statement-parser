@@ -1,12 +1,12 @@
-📄 PDF Statement Parser
+ PDF Statement Parser
 
 A powerful Python tool that converts Bank Muscat Savings and Bank Muscat Credit Card PDF statements into clean, structured CSV files — even when the PDFs contain multi-line descriptions, wrapped merchant names, misaligned columns, or inconsistent formatting.
 
 This project uses pdfplumber (not OCR) and applies smart parsing logic to extract reliable financial data.
 
-🚀 Features
+Features
 
-🔍 Automatic statement type detection
+- 🔍 Automatic statement type detection
 
 📑 Parses:
 
@@ -14,7 +14,7 @@ This project uses pdfplumber (not OCR) and applies smart parsing logic to extrac
 
 - Bank Muscat Credit Card statements
 
-🧠 Handles difficult layouts:
+Handles difficult layouts:
 
 - Multi-line descriptions
 
@@ -22,11 +22,11 @@ This project uses pdfplumber (not OCR) and applies smart parsing logic to extrac
  
 - Broken table rows
 
-- 📄 Multi-page PDF support
+- Multi-page PDF support
 
-- 📊 Clean CSV output
+- Clean CSV output
 
-- 🛠 Extensible architecture (easily add new banks)
+- Extensible architecture (easily add new banks)
 
 📦 Installation
 ```
@@ -38,7 +38,7 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 ```
-▶️ Usage
+ Usage
 
 Parse any statement:
 
@@ -54,8 +54,8 @@ You can specify a custom output directory:
 
 python main.py statement.pdf my_output_folder
 
-🧠 How It Works
-1️⃣ Statement Type Detection
+ How It Works
+ Statement Type Detection
 
 detector.py extracts text from the first page and checks for known patterns:
 ```python
@@ -68,7 +68,7 @@ def detect_statement_type(text):
 
     return None
 ```
-2️⃣ Savings Statement Parsing
+ Savings Statement Parsing
 
 bank_muscat_savings.py extracts columns like:
 ```
@@ -77,7 +77,7 @@ Post Date | Value Date | Narration | Debit | Credit | Balance
 
 It uses text coordinates from pdfplumber to align data properly.
 
-3️⃣ Credit Card Statement Parsing
+ Credit Card Statement Parsing
 
 bank_muscat_creditcard.py handles complex, multi-line rows such as:
 ```
@@ -103,7 +103,7 @@ Separates city, dates, and amounts
 
 Cleans broken lines and stray characters
 
-📂 Project Structure
+ Project Structure
 pdf-statement-parser/
 │
 ├── main.py
@@ -118,7 +118,7 @@ pdf-statement-parser/
 └── ui/
     └── streamlit_app.py
 
-🖥️ Optional GUI (Streamlit)
+ Optional GUI (Streamlit)
 
 Run the web UI:
 ```pyhton
@@ -127,7 +127,7 @@ streamlit run ui/streamlit_app.py
 
 Upload a PDF → automatically get the parsed CSV.
 
-📊 Example Output (Credit Card)
+ Example Output (Credit Card)
 ```
 Transaction Date,Posting Date,Description,Merchant City,Currency,Trans Amount,Card Amount
 15/11/2025,16/11/2025,BAHARALKARAM,OM,OMR,2.600,-2.600
